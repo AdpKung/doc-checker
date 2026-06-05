@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ตรวจสอบเอกสารโครงการ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;background:#F5F4F0;color:#1a1a1a;min-height:100vh}
+
+header{background:#fff;border-bottom:1px solid #e0ddd6;padding:1rem 1.5rem;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+header .logo{width:36px;height:36px;background:#1a1a1a;border-radius:8px;display:flex;align-items:center;justify-content:center}
+header .logo svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2}
+header h1{font-size:17px;font-weight:600}
+header p{font-size:12px;color:#888;margin-top:1px}
+
+.container{max-width:720px;margin:0 auto;padding:2rem 1.5rem}
+
+.card{background:#fff;border:1px solid #e0ddd6;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.card-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:.875rem}
+
+.type-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media(min-width:480px){.type-grid{grid-template-columns:repeat(4,1fr)}}
+.type-btn{border:1px solid #e0ddd6;border-radius:8px;padding:.6rem .75rem;font-size:13px;font-family:'Sarabun',sans-serif;cursor:pointer;background:#fff;color:#555;text-align:left;display:flex;align-items:center;gap:8px;transition:all .15s;line-height:1.3}
+.type-btn:hover{background:#f5f4f0}
+.type-btn.active{border-color:#1a1a1a;background:#1a1a1a;color:#fff}
+.type-btn svg{width:16px;height:16px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.8}
+
+.upload-area{border:1.5px dashed #c8c5be;border-radius:10px;padding:1.75rem;text-align:center;cursor:pointer;transition:background .15s}
+.upload-area:hover{background:#f5f4f0}
+.upload-area svg{width:32px;height:32px;stroke:#aaa;fill:none;stroke-width:1.5;margin-bottom:.5rem}
+.upload-area p{font-size:14px;color:#555;margin-bottom:4px}
+.upload-area span{font-size:12px;color:#aaa}
+#fileInput{display:none}
+
+.file-list{margin-top:.75rem;display:flex;flex-direction:column;gap:6px}
+.file-item{display:flex;align-items:center;gap:8px;padding:.5rem .75rem;background:#f5f4f0;border-radius:8px;font-size:13px}
+.file-item svg{width:16px;height:16px;stroke:#888;fill:none;stroke-width:1.8;flex-shrink:0}
+.fname{flex:1;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fsize{color:#aaa;font-size:12px}
+.remove-file{cursor:pointer;color:#aaa;background:none;border:none;font-size:18px;line-height:1;padding:0 2px}
+.remove-file:hover{color:#c0392b}
+
+textarea{width:100%;border:1px solid #e0ddd6;border-radius:8px;padding:.75rem;font-size:14px;font-family:'Sarabun',sans-serif;color:#1a1a1a;background:#fff;resize:vertical;min-height:130px;line-height:1.7}
+textarea:focus{outline:none;border-color:#888}
+textarea::placeholder{color:#bbb}
+
+.check-btn{width:100%;padding:.875rem;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:500;font-family:'Sarabun',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .15s;margin-top:.25rem}
+.check-btn:hover{opacity:.82}
+.check-btn:disabled{opacity:.35;cursor:not-allowed}
+.check-btn svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8}
+
+.result-section{display:none;margin-top:1rem}
+.loading-box{text-align:center;padding:2.5rem;color:#888}
+.loading-box svg{width:28px;height:28px;stroke:#aaa;fill:none;stroke-width:1.8;animation:spin 1s linear infinite;display:block;margin:0 auto .75rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.score-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.score-val{font-size:28px;font-weight:600}
+.score-val.hi{color:#0a6e4a}
+.score-val.mid{color:#9a5c00}
+.score-val.lo{color:#a32d2d}
+.summary-text{font-size:13px;color:#666;margin-bottom:1rem;line-height:1.6}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.25rem}
+.stat{border-radius:8px;padding:.75rem;text-align:center}
+.stat.ok{background:#e8f7f0}
+.stat.miss{background:#fdeaea}
+.stat.warn{background:#fef4e4}
+.stat .num{font-size:22px;font-weight:600;display:block}
+.stat.ok .num{color:#0a6e4a}
+.stat.miss .num{color:#a32d2d}
+.stat.warn .num{color:#9a5c00}
+.stat .lbl{font-size:11px;color:#777;margin-top:2px}
+
+.checklist{list-style:none;border-top:1px solid #eee}
+.checklist li{display:flex;align-items:flex-start;gap:10px;padding:.7rem 0;border-bottom:1px solid #eee;font-size:14px}
+.ci{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.ci svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5}
+.ci.ok{background:#e8f7f0;color:#0a6e4a}
+.ci.miss{background:#fdeaea;color:#a32d2d}
+.ci.warn{background:#fef4e4;color:#9a5c00}
+.item-body{flex:1}
+.item-name{font-weight:500;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.badge{display:inline-block;padding:1px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.badge.ok{background:#d0f0e0;color:#064d32}
+.badge.miss{background:#fad5d5;color:#7a1f1f}
+.badge.warn{background:#fde8c0;color:#6b3d00}
+.item-note{font-size:12px;color:#888;margin-top:3px;line-height:1.5}
+
+.ai-note{background:#eef5ff;border-radius:8px;padding:1rem;font-size:13px;color:#1a4580;margin-top:1rem;line-height:1.7}
+.ai-note strong{font-weight:600}
+
+.error-box{background:#fdeaea;border-radius:8px;padding:1rem;font-size:14px;color:#a32d2d;text-align:center}
+
+footer{text-align:center;padding:2rem;font-size:12px;color:#bbb}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/></svg>
+  </div>
+  <div>
+    <h1>ตรวจสอบเอกสารโครงการ</h1>
+    <p>AI วิเคราะห์ความครบถ้วนของเอกสาร</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <div class="card-title">ประเภทโครงการ</div>
+    <div class="type-grid" id="typeGrid">
+      <button class="type-btn active" data-type="ก่อสร้าง">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>ก่อสร้าง
+      </button>
+      <button class="type-btn" data-type="IT/Software">
+        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>IT / Software
+      </button>
+      <button class="type-btn" data-type="วิจัย">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>วิจัย
+      </button>
+      <button class="type-btn" data-type="อีเวนต์">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>อีเวนต์
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">อัปโหลดเอกสาร (PDF / Word / TXT)</div>
+    <div class="upload-area" id="uploadArea">
+      <svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+      <p>คลิกหรือลากไฟล์มาวางที่นี่</p>
+      <span>รองรับ PDF, DOCX, TXT — สูงสุด 10 MB ต่อไฟล์</span>
+    </div>
+    <div class="file-list" id="fileList"></div>
+    <input type="file" id="fileInput" multiple accept=".pdf,.docx,.doc,.txt">
+  </div>
+
+  <div class="card">
+    <div class="card-title">หรือวางเนื้อหาเอกสารที่นี่</div>
+    <textarea id="docText" placeholder="วางข้อความจากเอกสารโครงการ เช่น วัตถุประสงค์ งบประมาณ ผู้รับผิดชอบ กำหนดการ ขอบเขตงาน..."></textarea>
+  </div>
+
+  <button class="check-btn" id="checkBtn" onclick="runCheck()">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    ตรวจสอบเอกสาร
+  </button>
+
+  <div class="result-section" id="resultSection">
+    <div class="card" id="resultCard">
+      <div class="loading-box" id="loadingDiv">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
+        กำลังวิเคราะห์เอกสาร...
+      </div>
+      <div id="resultContent" style="display:none"></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>ระบบตรวจสอบเอกสารโครงการ · Powered by Google Gemini AI</footer>
+
+<script>
+const API_KEY = 'AQ.Ab8RN6LxSKY8IZXwA0DXzPEI-LeF90cUAvQpDNbAT_gfjrW08Q'; // ← วาง Gemini API Key ของคุณที่นี่
+
+let selectedType = 'ก่อสร้าง';
+let uploadedFiles = [];
+
+document.querySelectorAll('.type-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedType = btn.dataset.type;
+  });
+});
+
+document.getElementById('uploadArea').addEventListener('click', () => {
+  document.getElementById('fileInput').click();
+});
+document.getElementById('fileInput').addEventListener('change', e => {
+  Array.from(e.target.files).forEach(f => {
+    if (!uploadedFiles.find(x => x.name === f.name)) uploadedFiles.push(f);
+  });
+  renderFileList();
+});
+document.getElementById('uploadArea').addEventListener('dragover', e => e.preventDefault());
+document.getElementById('uploadArea').addEventListener('drop', e => {
+  e.preventDefault();
+  Array.from(e.dataTransfer.files).forEach(f => {
+    if (!uploadedFiles.find(x => x.name === f.name)) uploadedFiles.push(f);
+  });
+  renderFileList();
+});
+
+function renderFileList() {
+  const list = document.getElementById('fileList');
+  list.innerHTML = uploadedFiles.map((f,i) => `
+    <div class="file-item">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span class="fname">${f.name}</span>
+      <span class="fsize">${(f.size/1024).toFixed(0)} KB</span>
+      <button class="remove-file" onclick="removeFile(${i})" title="ลบ">×</button>
+    </div>
+  `).join('');
+}
+
+function removeFile(i) {
+  uploadedFiles.splice(i,1);
+  renderFileList();
+}
+
+async function readFileText(file) {
+  return new Promise(res => {
+    if (file.name.endsWith('.pdf')) {
+      res(`[ไฟล์ PDF: ${file.name} — กรุณาวางข้อความจาก PDF ในช่องด้านบนด้วย]`);
+    } else {
+      const r = new FileReader();
+      r.onload = e => res(e.target.result || '');
+      r.onerror = () => res('');
+      r.readAsText(file, 'UTF-8');
+    }
+  });
+}
+
+async function runCheck() {
+  const textContent = document.getElementById('docText').value.trim();
+  if (!textContent && uploadedFiles.length === 0) {
+    alert('กรุณาใส่เนื้อหาเอกสารหรืออัปโหลดไฟล์ก่อน');
+    return;
+  }
+
+  const btn = document.getElementById('checkBtn');
+  btn.disabled = true;
+  document.getElementById('resultSection').style.display = 'block';
+  document.getElementById('loadingDiv').style.display = 'block';
+  document.getElementById('resultContent').style.display = 'none';
+  document.getElementById('resultSection').scrollIntoView({behavior:'smooth', block:'nearest'});
+
+  let docContent = textContent;
+  for (const f of uploadedFiles) {
+    docContent += '\n\n' + await readFileText(f);
+  }
+
+  const prompt = `คุณเป็นผู้เชี่ยวชาญด้านการตรวจสอบเอกสารโครงการ ประเภท "${selectedType}"
+
+เอกสารที่ต้องตรวจสอบ:
+"""
+${docContent.slice(0, 4000)}
+"""
+
+ตรวจสอบว่าเอกสารโครงการมีองค์ประกอบสำคัญครบหรือไม่ ตอบในรูปแบบ JSON เท่านั้น ห้ามมี markdown หรือข้อความอื่น
+
+โครงสร้าง JSON:
+{
+  "summary": "สรุปภาพรวมเอกสาร 1-2 ประโยค",
+  "score": <คะแนน 0-100>,
+  "items": [
+    {
+      "name": "ชื่อองค์ประกอบ",
+      "status": "ok หรือ missing หรือ incomplete",
+      "note": "หมายเหตุสั้นๆ ว่าพบหรือขาดอะไร"
+    }
+  ],
+  "recommendation": "คำแนะนำหลักสำหรับการปรับปรุง"
+}
+
+องค์ประกอบที่ต้องตรวจสอบสำหรับโครงการประเภท ${selectedType}:
+1. ชื่อโครงการและวัตถุประสงค์
+2. ขอบเขตของงาน (Scope)
+3. กำหนดการ/ไทม์ไลน์
+4. งบประมาณและที่มาของงบ
+5. ผู้รับผิดชอบ/ทีมงาน
+6. ผลลัพธ์ที่คาดหวัง (Deliverables)
+7. ความเสี่ยงและแนวทางรับมือ
+8. เกณฑ์ความสำเร็จ (KPI)
+9. แผนการติดตามผล
+10. การอนุมัติ/ลายเซ็นผู้รับผิดชอบ`;
+
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }]
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const raw = data.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '';
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    renderResult(parsed);
+  } catch(e) {
+    document.getElementById('loadingDiv').style.display = 'none';
+    document.getElementById('resultContent').style.display = 'block';
+    document.getElementById('resultContent').innerHTML = `<div class="error-box">เกิดข้อผิดพลาด: ${e.message}<br><small>ตรวจสอบ API Key และการเชื่อมต่ออินเทอร์เน็ต</small></div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function renderResult(data) {
+  document.getElementById('loadingDiv').style.display = 'none';
+  const rc = document.getElementById('resultContent');
+  rc.style.display = 'block';
+
+  const ok = data.items.filter(i => i.status === 'ok').length;
+  const miss = data.items.filter(i => i.status === 'missing').length;
+  const inc = data.items.filter(i => i.status === 'incomplete').length;
+
+  const sc = data.score;
+  const scClass = sc >= 70 ? 'hi' : sc >= 40 ? 'mid' : 'lo';
+
+  const icons = {
+    ok: '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
+    missing: '<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+    incomplete: '<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+  };
+  const labels = { ok:'ครบ', missing:'ขาด', incomplete:'ไม่สมบูรณ์' };
+
+  rc.innerHTML = `
+    <div class="score-row">
+      <div>
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:4px">ผลการตรวจสอบ</div>
+        <div style="font-size:13px;color:#666">${data.summary}</div>
+      </div>
+      <div class="score-val ${scClass}">${sc}<span style="font-size:14px;font-weight:400;color:#aaa">/100</span></div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat ok"><span class="num">${ok}</span><div class="lbl">ครบถ้วน</div></div>
+      <div class="stat miss"><span class="num">${miss}</span><div class="lbl">ขาดหาย</div></div>
+      <div class="stat warn"><span class="num">${inc}</span><div class="lbl">ไม่สมบูรณ์</div></div>
+    </div>
+    <ul class="checklist">
+      ${data.items.map(item => {
+        const st = item.status === 'ok' ? 'ok' : item.status === 'missing' ? 'miss' : 'warn';
+        const ico = item.status === 'ok' ? icons.ok : item.status === 'missing' ? icons.missing : icons.incomplete;
+        return `<li>
+          <div class="ci ${st}">${ico}</div>
+          <div class="item-body">
+            <div class="item-name">${item.name}<span class="badge ${st}">${labels[item.status]||item.status}</span></div>
+            <div class="item-note">${item.note}</div>
+          </div>
+        </li>`;
+      }).join('')}
+    </ul>
+    <div class="ai-note"><strong>💡 คำแนะนำ:</strong> ${data.recommendation}</div>
+  `;
+}
+</script>
+</body>
+</html>
