@@ -778,10 +778,15 @@ ${text.substring(0, 14000)}
 async function callClaude(prompt){
   const resp = await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':'AQ.Ab8RN6JXtJ8i6fnnJHgUaNvfHHcTokIui_ru_FB5uXhmeg9fpg',
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
     body: JSON.stringify({
       model:'claude-sonnet-4-6',
-      max_tokens:2000,
+      max_tokens:10000,
       messages:[{role:'user',content:prompt}]
     })
   });
