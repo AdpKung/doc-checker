@@ -3,354 +3,989 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ตรวจสอบเอกสารโครงการ</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+<title>ระบบตรวจสอบมาตรฐานเอกสารโครงการ</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <style>
+:root {
+  --bg:          #EAE6DE;
+  --surface:     #FFFFFF;
+  --surface-2:   #F7F4EE;
+  --navy:        #192F4A;
+  --navy-mid:    #254470;
+  --navy-light:  #EDF2F9;
+  --gold:        #B8862A;
+  --gold-lt:     #F5C842;
+  --green:       #1B6847;
+  --green-bg:    #E6F4EC;
+  --red:         #A0302A;
+  --red-bg:      #FAE9E8;
+  --amber:       #B87320;
+  --amber-bg:    #FDF3E3;
+  --info:        #1A4E7A;
+  --info-bg:     #E8F1FA;
+  --text:        #171717;
+  --text-2:      #454545;
+  --muted:       #888;
+  --border:      #D5D0C6;
+  --shadow:      0 2px 18px rgba(25,47,74,.09);
+  --radius:      14px;
+  --radius-sm:   8px;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Sarabun',sans-serif;background:#F5F4F0;color:#1a1a1a;min-height:100vh}
+html{scroll-behavior:smooth}
 
-header{background:#fff;border-bottom:1px solid #e0ddd6;padding:1rem 1.5rem;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
-header .logo{width:36px;height:36px;background:#1a1a1a;border-radius:8px;display:flex;align-items:center;justify-content:center}
-header .logo svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2}
-header h1{font-size:17px;font-weight:600}
-header p{font-size:12px;color:#888;margin-top:1px}
+body{
+  font-family:'Sarabun',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  font-size:15px;
+}
 
-.container{max-width:720px;margin:0 auto;padding:2rem 1.5rem}
+/* ── Header ───────────────────────────────── */
+header{
+  background:var(--navy);
+  color:#fff;
+  height:60px;
+  display:flex;
+  align-items:center;
+  padding:0 1.75rem;
+  position:sticky;top:0;z-index:200;
+  border-bottom:3px solid var(--gold);
+  box-shadow:0 2px 16px rgba(0,0,0,.25);
+}
+.h-logo{
+  width:34px;height:34px;
+  background:var(--gold);
+  border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;margin-right:11px;flex-shrink:0;
+}
+.h-title{font-size:1rem;font-weight:800;letter-spacing:.01em;line-height:1.15}
+.h-sub{font-size:.72rem;color:rgba(255,255,255,.5);letter-spacing:.03em;font-weight:400}
+.h-badge{
+  margin-left:auto;
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.2);
+  color:rgba(255,255,255,.8);
+  font-size:.7rem;font-weight:600;
+  padding:3px 10px;border-radius:100px;
+  letter-spacing:.04em;
+}
 
-.card{background:#fff;border:1px solid #e0ddd6;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
-.card-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:.875rem}
+/* ── Layout ───────────────────────────────── */
+.wrap{max-width:1060px;margin:0 auto;padding:1.75rem 1.25rem 3rem}
 
-.type-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-@media(min-width:480px){.type-grid{grid-template-columns:repeat(4,1fr)}}
-.type-btn{border:1px solid #e0ddd6;border-radius:8px;padding:.6rem .75rem;font-size:13px;font-family:'Sarabun',sans-serif;cursor:pointer;background:#fff;color:#555;text-align:left;display:flex;align-items:center;gap:8px;transition:all .15s;line-height:1.3}
-.type-btn:hover{background:#f5f4f0}
-.type-btn.active{border-color:#1a1a1a;background:#1a1a1a;color:#fff}
-.type-btn svg{width:16px;height:16px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.8}
+/* ── Card base ────────────────────────────── */
+.card{
+  background:var(--surface);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  margin-bottom:1.25rem;
+}
 
-.upload-area{border:1.5px dashed #c8c5be;border-radius:10px;padding:1.75rem;text-align:center;cursor:pointer;transition:background .15s}
-.upload-area:hover{background:#f5f4f0}
-.upload-area svg{width:32px;height:32px;stroke:#aaa;fill:none;stroke-width:1.5;margin-bottom:.5rem}
-.upload-area p{font-size:14px;color:#555;margin-bottom:4px}
-.upload-area span{font-size:12px;color:#aaa}
-#fileInput{display:none}
+/* ── Upload card ──────────────────────────── */
+.upload-head{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);
+  color:#fff;padding:1.4rem 1.75rem;
+}
+.upload-head h2{font-size:1.05rem;font-weight:700;margin-bottom:.2rem}
+.upload-head p{font-size:.8rem;color:rgba(255,255,255,.65)}
+.upload-body{padding:1.75rem}
 
-.file-list{margin-top:.75rem;display:flex;flex-direction:column;gap:6px}
-.file-item{display:flex;align-items:center;gap:8px;padding:.5rem .75rem;background:#f5f4f0;border-radius:8px;font-size:13px}
-.file-item svg{width:16px;height:16px;stroke:#888;fill:none;stroke-width:1.8;flex-shrink:0}
-.fname{flex:1;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.fsize{color:#aaa;font-size:12px}
-.remove-file{cursor:pointer;color:#aaa;background:none;border:none;font-size:18px;line-height:1;padding:0 2px}
-.remove-file:hover{color:#c0392b}
+/* Drop zone */
+.drop-zone{
+  border:2.5px dashed var(--border);
+  border-radius:12px;
+  padding:2.5rem 1.5rem;
+  text-align:center;
+  cursor:pointer;
+  position:relative;
+  background:var(--surface-2);
+  transition:border-color .2s,background .2s;
+}
+.drop-zone:hover,.drop-zone.over{border-color:var(--gold);background:#FBF8EF}
+.drop-zone.has-file{border-color:var(--green);background:var(--green-bg)}
+.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dz-icon{font-size:2.8rem;margin-bottom:.75rem;display:block}
+.dz-title{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.35rem}
+.dz-sub{font-size:.82rem;color:var(--muted)}
+.dz-badges{display:flex;justify-content:center;gap:6px;margin-top:.9rem}
+.dz-badge{
+  background:var(--navy);color:#fff;
+  font-size:.68rem;font-weight:800;
+  padding:2px 10px;border-radius:100px;letter-spacing:.06em;
+}
 
-textarea{width:100%;border:1px solid #e0ddd6;border-radius:8px;padding:.75rem;font-size:14px;font-family:'Sarabun',sans-serif;color:#1a1a1a;background:#fff;resize:vertical;min-height:130px;line-height:1.7}
-textarea:focus{outline:none;border-color:#888}
-textarea::placeholder{color:#bbb}
+/* File info strip */
+.file-strip{
+  display:none;
+  align-items:center;gap:10px;
+  background:var(--green-bg);
+  border:1px solid rgba(27,104,71,.2);
+  border-radius:var(--radius-sm);
+  padding:.75rem 1rem;
+  margin-top:1rem;
+  font-size:.875rem;
+}
+.file-strip.on{display:flex}
+.fs-icon{font-size:1.4rem}
+.fs-name{font-weight:700;color:var(--green)}
+.fs-size{color:var(--muted);font-size:.78rem}
+.fs-remove{margin-left:auto;background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;padding:2px 6px;border-radius:4px}
+.fs-remove:hover{color:var(--red);background:var(--red-bg)}
 
-.check-btn{width:100%;padding:.875rem;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:500;font-family:'Sarabun',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .15s;margin-top:.25rem}
-.check-btn:hover{opacity:.82}
-.check-btn:disabled{opacity:.35;cursor:not-allowed}
-.check-btn svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8}
+/* Standards mini-grid */
+.std-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:.75rem;margin-top:1.25rem;
+}
+.std-item{
+  background:var(--surface-2);
+  border-left:3px solid var(--navy-mid);
+  border-radius:6px;
+  padding:.7rem .9rem;
+}
+.std-label{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--navy-mid);margin-bottom:.25rem}
+.std-val{font-size:.8rem;color:var(--text-2);line-height:1.5}
 
-.result-section{display:none;margin-top:1rem}
-.loading-box{text-align:center;padding:2.5rem;color:#888}
-.loading-box svg{width:28px;height:28px;stroke:#aaa;fill:none;stroke-width:1.8;animation:spin 1s linear infinite;display:block;margin:0 auto .75rem}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* Check button */
+.btn-check{
+  width:100%;
+  margin-top:1.4rem;
+  padding:.95rem 1.5rem;
+  background:linear-gradient(135deg,var(--navy),var(--navy-mid));
+  color:#fff;
+  border:none;border-radius:10px;
+  font-family:'Sarabun',sans-serif;
+  font-size:1rem;font-weight:800;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  transition:transform .15s,box-shadow .15s,opacity .15s;
+}
+.btn-check:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 5px 18px rgba(25,47,74,.3)}
+.btn-check:disabled{opacity:.45;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+.btn-check.running{background:linear-gradient(135deg,var(--amber),#D49A30)}
 
-.score-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
-.score-val{font-size:28px;font-weight:600}
-.score-val.hi{color:#0a6e4a}
-.score-val.mid{color:#9a5c00}
-.score-val.lo{color:#a32d2d}
-.summary-text{font-size:13px;color:#666;margin-bottom:1rem;line-height:1.6}
-.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.25rem}
-.stat{border-radius:8px;padding:.75rem;text-align:center}
-.stat.ok{background:#e8f7f0}
-.stat.miss{background:#fdeaea}
-.stat.warn{background:#fef4e4}
-.stat .num{font-size:22px;font-weight:600;display:block}
-.stat.ok .num{color:#0a6e4a}
-.stat.miss .num{color:#a32d2d}
-.stat.warn .num{color:#9a5c00}
-.stat .lbl{font-size:11px;color:#777;margin-top:2px}
+/* Spinner */
+.spin{
+  width:18px;height:18px;border-radius:50%;
+  border:2.5px solid rgba(255,255,255,.3);
+  border-top-color:#fff;
+  animation:rot .7s linear infinite;
+}
+@keyframes rot{to{transform:rotate(360deg)}}
 
-.checklist{list-style:none;border-top:1px solid #eee}
-.checklist li{display:flex;align-items:flex-start;gap:10px;padding:.7rem 0;border-bottom:1px solid #eee;font-size:14px}
-.ci{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.ci svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5}
-.ci.ok{background:#e8f7f0;color:#0a6e4a}
-.ci.miss{background:#fdeaea;color:#a32d2d}
-.ci.warn{background:#fef4e4;color:#9a5c00}
-.item-body{flex:1}
-.item-name{font-weight:500;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.badge{display:inline-block;padding:1px 8px;border-radius:20px;font-size:11px;font-weight:500}
-.badge.ok{background:#d0f0e0;color:#064d32}
-.badge.miss{background:#fad5d5;color:#7a1f1f}
-.badge.warn{background:#fde8c0;color:#6b3d00}
-.item-note{font-size:12px;color:#888;margin-top:3px;line-height:1.5}
+/* ── Loading overlay ──────────────────────── */
+.loading-card{
+  display:none;
+  text-align:center;
+  padding:3rem 2rem;
+}
+.loading-card.on{display:block}
 
-.ai-note{background:#eef5ff;border-radius:8px;padding:1rem;font-size:13px;color:#1a4580;margin-top:1rem;line-height:1.7}
-.ai-note strong{font-weight:600}
+/* Document scan animation */
+.doc-scan{
+  width:72px;height:96px;
+  background:#fff;
+  border:2px solid var(--border);
+  border-radius:5px;
+  margin:0 auto 1.6rem;
+  position:relative;overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.doc-scan::before{
+  content:'';
+  position:absolute;inset:0;
+  background:repeating-linear-gradient(
+    180deg,
+    transparent 0,transparent 7px,
+    var(--border) 7px,var(--border) 8px
+  );
+  opacity:.35;
+}
+.scan-beam{
+  position:absolute;left:0;right:0;
+  height:3px;
+  background:linear-gradient(90deg,transparent,var(--gold-lt),transparent);
+  box-shadow:0 0 8px var(--gold);
+  animation:beam 1.4s ease-in-out infinite;
+}
+@keyframes beam{0%{top:-3px}100%{top:calc(100% + 3px)}}
 
-.error-box{background:#fdeaea;border-radius:8px;padding:1rem;font-size:14px;color:#a32d2d;text-align:center}
+.load-steps{list-style:none;text-align:left;display:inline-block;margin-top:.5rem}
+.load-steps li{
+  padding:.3rem 0;
+  font-size:.875rem;color:var(--muted);
+  display:flex;align-items:center;gap:8px;
+  transition:color .2s,font-weight .2s;
+}
+.load-steps li.active{color:var(--gold);font-weight:700}
+.load-steps li.done{color:var(--green)}
+.step-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:currentColor;flex-shrink:0;
+}
 
-footer{text-align:center;padding:2rem;font-size:12px;color:#bbb}
+/* ── Results section ──────────────────────── */
+.results{display:none}
+.results.on{display:block}
+
+/* Score hero card */
+.score-card{
+  display:flex;flex-wrap:wrap;align-items:center;
+  gap:1.75rem;padding:1.75rem 2rem;
+}
+.score-ring-wrap{position:relative;width:110px;height:110px;flex-shrink:0}
+.score-ring svg{width:110px;height:110px;transform:rotate(-90deg)}
+.ring-track{fill:none;stroke:var(--border);stroke-width:9}
+.ring-fill{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1)}
+.score-val{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.score-num{font-size:1.9rem;font-weight:800;line-height:1}
+.score-lbl{font-size:.65rem;color:var(--muted);font-weight:500;margin-top:1px}
+.score-meta h3{font-size:1.2rem;font-weight:800;color:var(--navy);margin-bottom:.35rem}
+.score-meta p{font-size:.875rem;color:var(--text-2);line-height:1.65;max-width:520px}
+.score-actions{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem}
+
+/* Status badge */
+.st-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 14px;border-radius:100px;
+  font-size:.75rem;font-weight:800;
+  letter-spacing:.05em;text-transform:uppercase;
+  margin-bottom:.5rem;
+}
+.st-pass{background:var(--green-bg);color:var(--green)}
+.st-fail{background:var(--red-bg);color:var(--red)}
+.st-partial{background:var(--amber-bg);color:var(--amber)}
+
+/* Secondary button */
+.btn-sec{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:.5rem 1.1rem;
+  background:transparent;
+  border:2px solid var(--navy);
+  color:var(--navy);
+  border-radius:7px;
+  font-family:'Sarabun',sans-serif;
+  font-size:.85rem;font-weight:700;
+  cursor:pointer;transition:.2s;
+}
+.btn-sec:hover{background:var(--navy);color:#fff}
+
+/* ── Limitations banner ──────────────────── */
+.limit-banner{
+  background:var(--amber-bg);
+  border:1px solid rgba(184,115,32,.3);
+  border-radius:10px;padding:1rem 1.25rem;
+  margin-bottom:1.25rem;
+}
+.limit-banner h4{
+  color:var(--amber);font-size:.85rem;font-weight:800;
+  display:flex;align-items:center;gap:6px;margin-bottom:.4rem;
+}
+.limit-banner ul{
+  margin:0 0 0 1.2rem;
+  font-size:.82rem;color:var(--text-2);line-height:1.8;
+}
+
+/* ── Check category grid ──────────────────── */
+.cat-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(290px,1fr));
+  gap:1rem;
+  margin-bottom:1.25rem;
+}
+.cat-card{
+  background:var(--surface);
+  border-radius:12px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.cat-head{
+  padding:.9rem 1.1rem;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;user-select:none;
+  transition:background .15s;
+}
+.cat-head:hover{background:var(--surface-2)}
+.cat-label{
+  display:flex;align-items:center;gap:7px;
+  font-weight:700;font-size:.9rem;
+}
+.cat-stat{
+  display:flex;align-items:center;gap:5px;
+  font-size:.75rem;font-weight:700;
+}
+.cdot{width:7px;height:7px;border-radius:50%}
+.cdot-pass{background:var(--green)}
+.cdot-fail{background:var(--red)}
+.cdot-warn{background:var(--amber)}
+.cdot-info{background:var(--info)}
+.chev{font-size:.65rem;transition:transform .2s;margin-left:4px}
+.chev.open{transform:rotate(180deg)}
+
+.cat-items{padding:.5rem 1.1rem}
+.ci{
+  display:flex;align-items:flex-start;gap:9px;
+  padding:.55rem 0;
+  border-bottom:1px solid #F0EDE7;
+  font-size:.845rem;
+}
+.ci:last-child{border-bottom:none}
+.ci-icon{
+  width:19px;height:19px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:900;flex-shrink:0;margin-top:1px;
+}
+.ci-pass{background:var(--green-bg);color:var(--green)}
+.ci-fail{background:var(--red-bg);color:var(--red)}
+.ci-warn{background:var(--amber-bg);color:var(--amber)}
+.ci-info{background:var(--info-bg);color:var(--info)}
+.ci-name{font-weight:600;color:var(--text);line-height:1.4}
+.ci-note{font-size:.77rem;color:var(--muted);margin-top:2px;line-height:1.5}
+
+/* ── Recommendations ─────────────────────── */
+.recs-card .recs-head{
+  background:var(--navy);color:#fff;
+  padding:.9rem 1.4rem;
+  font-weight:800;font-size:.9rem;
+  display:flex;align-items:center;gap:7px;
+}
+.recs-body{padding:1rem 1.4rem}
+.rec{
+  display:flex;gap:11px;
+  padding:.65rem 0;
+  border-bottom:1px solid var(--border);
+  font-size:.845rem;
+  align-items:flex-start;
+}
+.rec:last-child{border-bottom:none}
+.rec-n{
+  width:22px;height:22px;
+  background:var(--gold);color:#fff;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:800;flex-shrink:0;
+}
+.rec-txt{color:var(--text-2);line-height:1.65}
+
+/* ── JSON viewer ─────────────────────────── */
+.json-toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.9rem 1.4rem;cursor:pointer;
+  font-weight:600;font-size:.85rem;color:var(--text-2);
+  border-bottom:1px solid var(--border);
+  transition:background .15s;user-select:none;
+}
+.json-toggle:hover{background:var(--surface-2)}
+.json-pre{
+  display:none;
+  background:#10182A;color:#C5D0E0;
+  padding:1.4rem;
+  font-size:.75rem;line-height:1.65;
+  font-family:'Courier New',monospace;
+  overflow:auto;max-height:380px;
+}
+.json-pre.on{display:block}
+
+/* ── Error banner ────────────────────────── */
+.err-banner{
+  display:flex;gap:11px;align-items:flex-start;
+  background:var(--red-bg);border:1px solid rgba(160,48,42,.25);
+  border-radius:10px;padding:1rem 1.25rem;
+  font-size:.875rem;color:var(--red);
+  margin-bottom:1rem;
+}
+
+/* ── Footer ──────────────────────────────── */
+footer{text-align:center;padding:2rem;font-size:.75rem;color:var(--muted)}
+footer a{color:var(--muted);text-decoration:none}
+
+/* ── Responsive ──────────────────────────── */
+@media(max-width:600px){
+  .wrap{padding:1rem .875rem 2.5rem}
+  .score-card{flex-direction:column;text-align:center}
+  .score-meta p{max-width:100%}
+  .cat-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 
+<!-- ═══════════════════════════════════════ HEADER -->
 <header>
-  <div class="logo">
-    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/></svg>
-  </div>
+  <div class="h-logo">📋</div>
   <div>
-    <h1>ตรวจสอบเอกสารโครงการ</h1>
-    <p>AI วิเคราะห์ความครบถ้วนของเอกสาร</p>
+    <div class="h-title">ระบบตรวจสอบมาตรฐานเอกสารโครงการ</div>
+    <div class="h-sub">Project Document Checker · Thai Academic Standards</div>
   </div>
+  <div class="h-badge">AI-Powered</div>
 </header>
 
-<div class="container">
+<div class="wrap">
 
-  <div class="card">
-    <div class="card-title">ประเภทโครงการ</div>
-    <div class="type-grid" id="typeGrid">
-      <button class="type-btn active" data-type="ก่อสร้าง">
-        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>ก่อสร้าง
-      </button>
-      <button class="type-btn" data-type="IT/Software">
-        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>IT / Software
-      </button>
-      <button class="type-btn" data-type="วิจัย">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>วิจัย
-      </button>
-      <button class="type-btn" data-type="อีเวนต์">
-        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>อีเวนต์
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">อัปโหลดเอกสาร (PDF / Word / TXT)</div>
-    <div class="upload-area" id="uploadArea">
-      <svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-      <p>คลิกหรือลากไฟล์มาวางที่นี่</p>
-      <span>รองรับ PDF, DOCX, TXT — สูงสุด 10 MB ต่อไฟล์</span>
-    </div>
-    <div class="file-list" id="fileList"></div>
-    <input type="file" id="fileInput" multiple accept=".pdf,.docx,.doc,.txt">
-  </div>
-
-  <div class="card">
-    <div class="card-title">หรือวางเนื้อหาเอกสารที่นี่</div>
-    <textarea id="docText" placeholder="วางข้อความจากเอกสารโครงการ เช่น วัตถุประสงค์ งบประมาณ ผู้รับผิดชอบ กำหนดการ ขอบเขตงาน..."></textarea>
-  </div>
-
-  <button class="check-btn" id="checkBtn" onclick="runCheck()">
-    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-    ตรวจสอบเอกสาร
-  </button>
-
-  <div class="result-section" id="resultSection">
-    <div class="card" id="resultCard">
-      <div class="loading-box" id="loadingDiv">
-        <svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
-        กำลังวิเคราะห์เอกสาร...
+  <!-- ══════════════════════════════════════ UPLOAD SECTION -->
+  <div id="section-upload">
+    <div class="card">
+      <div class="upload-head">
+        <h2>อัปโหลดเอกสารเพื่อตรวจสอบ</h2>
+        <p>รองรับไฟล์ .docx และ .pdf · ระบบจะวิเคราะห์โครงสร้างและรูปแบบเอกสารโดยอัตโนมัติ</p>
       </div>
-      <div id="resultContent" style="display:none"></div>
-    </div>
-  </div>
+      <div class="upload-body">
 
-</div>
-
-<footer>ระบบตรวจสอบเอกสารโครงการ · Powered by Google Gemini AI</footer>
-
-<script>
-const API_KEY = 'AQ.Ab8RN6LxSKY8IZXwA0DXzPEI-LeF90cUAvQpDNbAT_gfjrW08Q'; // ← วาง Gemini API Key ของคุณที่นี่
-
-let selectedType = 'ก่อสร้าง';
-let uploadedFiles = [];
-
-document.querySelectorAll('.type-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    selectedType = btn.dataset.type;
-  });
-});
-
-document.getElementById('uploadArea').addEventListener('click', () => {
-  document.getElementById('fileInput').click();
-});
-document.getElementById('fileInput').addEventListener('change', e => {
-  Array.from(e.target.files).forEach(f => {
-    if (!uploadedFiles.find(x => x.name === f.name)) uploadedFiles.push(f);
-  });
-  renderFileList();
-});
-document.getElementById('uploadArea').addEventListener('dragover', e => e.preventDefault());
-document.getElementById('uploadArea').addEventListener('drop', e => {
-  e.preventDefault();
-  Array.from(e.dataTransfer.files).forEach(f => {
-    if (!uploadedFiles.find(x => x.name === f.name)) uploadedFiles.push(f);
-  });
-  renderFileList();
-});
-
-function renderFileList() {
-  const list = document.getElementById('fileList');
-  list.innerHTML = uploadedFiles.map((f,i) => `
-    <div class="file-item">
-      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      <span class="fname">${f.name}</span>
-      <span class="fsize">${(f.size/1024).toFixed(0)} KB</span>
-      <button class="remove-file" onclick="removeFile(${i})" title="ลบ">×</button>
-    </div>
-  `).join('');
-}
-
-function removeFile(i) {
-  uploadedFiles.splice(i,1);
-  renderFileList();
-}
-
-async function readFileText(file) {
-  return new Promise(res => {
-    if (file.name.endsWith('.pdf')) {
-      res(`[ไฟล์ PDF: ${file.name} — กรุณาวางข้อความจาก PDF ในช่องด้านบนด้วย]`);
-    } else {
-      const r = new FileReader();
-      r.onload = e => res(e.target.result || '');
-      r.onerror = () => res('');
-      r.readAsText(file, 'UTF-8');
-    }
-  });
-}
-
-async function runCheck() {
-  const textContent = document.getElementById('docText').value.trim();
-  if (!textContent && uploadedFiles.length === 0) {
-    alert('กรุณาใส่เนื้อหาเอกสารหรืออัปโหลดไฟล์ก่อน');
-    return;
-  }
-
-  const btn = document.getElementById('checkBtn');
-  btn.disabled = true;
-  document.getElementById('resultSection').style.display = 'block';
-  document.getElementById('loadingDiv').style.display = 'block';
-  document.getElementById('resultContent').style.display = 'none';
-  document.getElementById('resultSection').scrollIntoView({behavior:'smooth', block:'nearest'});
-
-  let docContent = textContent;
-  for (const f of uploadedFiles) {
-    docContent += '\n\n' + await readFileText(f);
-  }
-
-  const prompt = `คุณเป็นผู้เชี่ยวชาญด้านการตรวจสอบเอกสารโครงการ ประเภท "${selectedType}"
-
-เอกสารที่ต้องตรวจสอบ:
-"""
-${docContent.slice(0, 4000)}
-"""
-
-ตรวจสอบว่าเอกสารโครงการมีองค์ประกอบสำคัญครบหรือไม่ ตอบในรูปแบบ JSON เท่านั้น ห้ามมี markdown หรือข้อความอื่น
-
-โครงสร้าง JSON:
-{
-  "summary": "สรุปภาพรวมเอกสาร 1-2 ประโยค",
-  "score": <คะแนน 0-100>,
-  "items": [
-    {
-      "name": "ชื่อองค์ประกอบ",
-      "status": "ok หรือ missing หรือ incomplete",
-      "note": "หมายเหตุสั้นๆ ว่าพบหรือขาดอะไร"
-    }
-  ],
-  "recommendation": "คำแนะนำหลักสำหรับการปรับปรุง"
-}
-
-องค์ประกอบที่ต้องตรวจสอบสำหรับโครงการประเภท ${selectedType}:
-1. ชื่อโครงการและวัตถุประสงค์
-2. ขอบเขตของงาน (Scope)
-3. กำหนดการ/ไทม์ไลน์
-4. งบประมาณและที่มาของงบ
-5. ผู้รับผิดชอบ/ทีมงาน
-6. ผลลัพธ์ที่คาดหวัง (Deliverables)
-7. ความเสี่ยงและแนวทางรับมือ
-8. เกณฑ์ความสำเร็จ (KPI)
-9. แผนการติดตามผล
-10. การอนุมัติ/ลายเซ็นผู้รับผิดชอบ`;
-
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
-      })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    const raw = data.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '';
-    const clean = raw.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(clean);
-    renderResult(parsed);
-  } catch(e) {
-    document.getElementById('loadingDiv').style.display = 'none';
-    document.getElementById('resultContent').style.display = 'block';
-    document.getElementById('resultContent').innerHTML = `<div class="error-box">เกิดข้อผิดพลาด: ${e.message}<br><small>ตรวจสอบ API Key และการเชื่อมต่ออินเทอร์เน็ต</small></div>`;
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-function renderResult(data) {
-  document.getElementById('loadingDiv').style.display = 'none';
-  const rc = document.getElementById('resultContent');
-  rc.style.display = 'block';
-
-  const ok = data.items.filter(i => i.status === 'ok').length;
-  const miss = data.items.filter(i => i.status === 'missing').length;
-  const inc = data.items.filter(i => i.status === 'incomplete').length;
-
-  const sc = data.score;
-  const scClass = sc >= 70 ? 'hi' : sc >= 40 ? 'mid' : 'lo';
-
-  const icons = {
-    ok: '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
-    missing: '<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
-    incomplete: '<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
-  };
-  const labels = { ok:'ครบ', missing:'ขาด', incomplete:'ไม่สมบูรณ์' };
-
-  rc.innerHTML = `
-    <div class="score-row">
-      <div>
-        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:4px">ผลการตรวจสอบ</div>
-        <div style="font-size:13px;color:#666">${data.summary}</div>
-      </div>
-      <div class="score-val ${scClass}">${sc}<span style="font-size:14px;font-weight:400;color:#aaa">/100</span></div>
-    </div>
-    <div class="stat-grid">
-      <div class="stat ok"><span class="num">${ok}</span><div class="lbl">ครบถ้วน</div></div>
-      <div class="stat miss"><span class="num">${miss}</span><div class="lbl">ขาดหาย</div></div>
-      <div class="stat warn"><span class="num">${inc}</span><div class="lbl">ไม่สมบูรณ์</div></div>
-    </div>
-    <ul class="checklist">
-      ${data.items.map(item => {
-        const st = item.status === 'ok' ? 'ok' : item.status === 'missing' ? 'miss' : 'warn';
-        const ico = item.status === 'ok' ? icons.ok : item.status === 'missing' ? icons.missing : icons.incomplete;
-        return `<li>
-          <div class="ci ${st}">${ico}</div>
-          <div class="item-body">
-            <div class="item-name">${item.name}<span class="badge ${st}">${labels[item.status]||item.status}</span></div>
-            <div class="item-note">${item.note}</div>
+        <!-- Drop zone -->
+        <div class="drop-zone" id="dz">
+          <input type="file" id="file-input" accept=".docx,.pdf">
+          <span class="dz-icon" id="dz-icon">📂</span>
+          <div class="dz-title">ลากและวางไฟล์ที่นี่ หรือคลิกเพื่อเลือก</div>
+          <div class="dz-sub">ขนาดไฟล์สูงสุด 20 MB</div>
+          <div class="dz-badges">
+            <span class="dz-badge">DOCX</span>
+            <span class="dz-badge">PDF</span>
           </div>
-        </li>`;
-      }).join('')}
+        </div>
+
+        <!-- File strip (shown after selection) -->
+        <div class="file-strip" id="file-strip">
+          <span class="fs-icon" id="fs-icon">📄</span>
+          <div>
+            <div class="fs-name" id="fs-name">—</div>
+            <div class="fs-size" id="fs-size">—</div>
+          </div>
+          <button class="fs-remove" onclick="removeFile()" title="ลบไฟล์">✕</button>
+        </div>
+
+        <!-- Standards quick-ref -->
+        <div class="std-grid">
+          <div class="std-item">
+            <div class="std-label">ขนาดกระดาษ &amp; ขอบ</div>
+            <div class="std-val">A4 · บน/ซ้าย 1.5" · ขวา/ล่าง 1"</div>
+          </div>
+          <div class="std-item">
+            <div class="std-label">ฟอนต์ที่กำหนด</div>
+            <div class="std-val">TH Sarabun PSK / TH Sarabun New</div>
+          </div>
+          <div class="std-item">
+            <div class="std-label">ขนาดอักษร</div>
+            <div class="std-val">16pt เนื้อหา · 18pt หัวข้อรอง · 20–22pt หัวข้อบท</div>
+          </div>
+          <div class="std-item">
+            <div class="std-label">โครงสร้างบังคับ</div>
+            <div class="std-val">ส่วนต้น 8 รายการ + 5 บท + ส่วนท้าย</div>
+          </div>
+        </div>
+
+        <!-- Error area -->
+        <div id="err-area"></div>
+
+        <!-- Submit button -->
+        <button class="btn-check" id="btn-check" disabled onclick="runCheck()">
+          <span id="btn-label">เลือกไฟล์ก่อนเพื่อเริ่มตรวจสอบ</span>
+        </button>
+
+      </div>
+    </div>
+  </div><!-- /section-upload -->
+
+  <!-- ══════════════════════════════════════ LOADING CARD -->
+  <div class="card loading-card" id="section-loading">
+    <div class="doc-scan"><div class="scan-beam"></div></div>
+    <ul class="load-steps" id="load-steps">
+      <li id="s0"><span class="step-dot"></span>อ่านและแยกข้อมูลจากไฟล์</li>
+      <li id="s1"><span class="step-dot"></span>วิเคราะห์โครงสร้างเอกสาร</li>
+      <li id="s2"><span class="step-dot"></span>ตรวจสอบด้วย Claude AI</li>
+      <li id="s3"><span class="step-dot"></span>สร้างรายงานผลลัพธ์</li>
     </ul>
-    <div class="ai-note"><strong>💡 คำแนะนำ:</strong> ${data.recommendation}</div>
-  `;
+  </div>
+
+  <!-- ══════════════════════════════════════ RESULTS -->
+  <div class="results" id="section-results">
+
+    <!-- Score hero -->
+    <div class="card score-card" id="score-card">
+      <div class="score-ring-wrap">
+        <svg viewBox="0 0 110 110">
+          <circle class="ring-track" cx="55" cy="55" r="47"/>
+          <circle class="ring-fill" id="ring-fill" cx="55" cy="55" r="47"
+            stroke-dasharray="0 295.31"/>
+        </svg>
+        <div class="score-val">
+          <span class="score-num" id="score-num">0</span>
+          <span class="score-lbl">คะแนน/100</span>
+        </div>
+      </div>
+      <div class="score-meta">
+        <span class="st-badge" id="st-badge">—</span>
+        <h3 id="result-title">—</h3>
+        <p id="result-summary">—</p>
+        <div class="score-actions">
+          <button class="btn-sec" onclick="resetApp()">↩ ตรวจสอบเอกสารใหม่</button>
+          <button class="btn-sec" onclick="exportJson()">⬇ ดาวน์โหลด JSON</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Limitations banner -->
+    <div class="limit-banner" id="limit-banner">
+      <h4>⚠️ ขอบเขตการตรวจสอบอัตโนมัติ</h4>
+      <ul id="manual-checks-list">
+        <li>ขนาดอักษรที่แน่นอน (font size) — ต้องตรวจด้วยตนเองใน Word/PDF</li>
+        <li>ระยะขอบหน้ากระดาษ (margins) — ต้องเปิดดูใน Page Setup</li>
+        <li>ระยะห่างบรรทัด (line spacing) — ต้องตรวจด้วยตนเอง</li>
+        <li>การจัดแนวข้อความ (Thai Distributed / Justify) — ต้องตรวจด้วยตนเอง</li>
+      </ul>
+    </div>
+
+    <!-- Category cards -->
+    <div class="cat-grid" id="cat-grid"></div>
+
+    <!-- Recommendations -->
+    <div class="card recs-card" id="recs-card">
+      <div class="recs-head">💡 คำแนะนำในการแก้ไข</div>
+      <div class="recs-body" id="recs-body"></div>
+    </div>
+
+    <!-- JSON viewer -->
+    <div class="card">
+      <div class="json-toggle" onclick="toggleJson(this)">
+        <span>📄 ผลลัพธ์ JSON (สำหรับนักพัฒนา)</span>
+        <span><span class="chev" id="json-chev">▼</span></span>
+      </div>
+      <pre class="json-pre" id="json-pre"></pre>
+    </div>
+
+  </div><!-- /results -->
+
+</div><!-- /wrap -->
+
+<footer>
+  ระบบตรวจสอบมาตรฐานเอกสารโครงการ &nbsp;·&nbsp; วิเคราะห์โดย Claude AI (Anthropic)
+  &nbsp;·&nbsp; รูปแบบตาม <abbr title="มาตรฐานเอกสารโครงการวิชาการไทย">Thai Academic Doc Standard</abbr>
+</footer>
+
+<!-- ════════════════════════════════════ SCRIPTS ════════════════════════════════ -->
+<script>
+'use strict';
+
+// ─── State ───────────────────────────────────────────────────────────────────
+let _file = null;
+let _lastResult = null;
+
+// ─── PDF.js dynamic load ──────────────────────────────────────────────────────
+(function(){
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+  s.onload = () => {
+    if(window.pdfjsLib)
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  };
+  document.head.appendChild(s);
+})();
+
+// ─── File input / drop zone ───────────────────────────────────────────────────
+const dz       = document.getElementById('dz');
+const fileInp  = document.getElementById('file-input');
+
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('over');
+  const f = e.dataTransfer.files[0];
+  if(f) setFile(f);
+});
+fileInp.addEventListener('change', e => { if(e.target.files[0]) setFile(e.target.files[0]); });
+
+function setFile(file){
+  const ext = file.name.split('.').pop().toLowerCase();
+  if(!['docx','pdf'].includes(ext)){
+    showErr('รองรับเฉพาะไฟล์ .docx และ .pdf เท่านั้น'); return;
+  }
+  clearErr();
+  _file = file;
+
+  document.getElementById('fs-icon').textContent  = ext === 'pdf' ? '📕' : '📘';
+  document.getElementById('fs-name').textContent  = file.name;
+  document.getElementById('fs-size').textContent  = fmtSize(file.size);
+  document.getElementById('file-strip').classList.add('on');
+  dz.classList.add('has-file');
+
+  const btn = document.getElementById('btn-check');
+  btn.disabled = false;
+  document.getElementById('btn-label').textContent = `▶ ตรวจสอบ "${file.name}"`;
 }
+
+function removeFile(){
+  _file = null;
+  fileInp.value = '';
+  document.getElementById('file-strip').classList.remove('on');
+  dz.classList.remove('has-file');
+  const btn = document.getElementById('btn-check');
+  btn.disabled = true;
+  document.getElementById('btn-label').textContent = 'เลือกไฟล์ก่อนเพื่อเริ่มตรวจสอบ';
+  clearErr();
+}
+
+function fmtSize(b){
+  if(b < 1024)       return `${b} B`;
+  if(b < 1048576)    return `${(b/1024).toFixed(1)} KB`;
+  return `${(b/1048576).toFixed(1)} MB`;
+}
+
+// ─── Error helpers ────────────────────────────────────────────────────────────
+function showErr(msg){
+  const a = document.getElementById('err-area');
+  a.innerHTML = `<div class="err-banner"><span>❌</span><div><strong>ข้อผิดพลาด:</strong> ${msg}</div></div>`;
+}
+function clearErr(){ document.getElementById('err-area').innerHTML = ''; }
+
+// ─── Step indicators ──────────────────────────────────────────────────────────
+function stepDone(i){ document.getElementById('s'+i).classList.add('done'); }
+function stepActive(i){
+  for(let k=0;k<4;k++) document.getElementById('s'+k).classList.remove('active');
+  document.getElementById('s'+i).classList.add('active');
+}
+
+// ─── DOCX extraction ──────────────────────────────────────────────────────────
+async function extractDocx(file){
+  const buf = await file.arrayBuffer();
+
+  // Get structural HTML (headings preserved)
+  const htmlRes  = await mammoth.convertToHtml({arrayBuffer: buf},{
+    styleMap:[
+      "p[style-name='Heading 1'] => h1:fresh",
+      "p[style-name='Heading 2'] => h2:fresh",
+      "p[style-name='Heading 3'] => h3:fresh",
+      "p[style-name='ชื่อบท']    => h1:fresh",
+      "p[style-name='หัวข้อ1']   => h2:fresh",
+    ]
+  });
+
+  const textRes = await mammoth.extractRawText({arrayBuffer: buf});
+
+  return {
+    html: htmlRes.html,
+    text: textRes.value,
+    warnings: htmlRes.messages.map(m=>m.message)
+  };
+}
+
+// ─── PDF extraction ───────────────────────────────────────────────────────────
+async function extractPdf(file){
+  if(typeof pdfjsLib === 'undefined')
+    throw new Error('PDF.js ยังโหลดไม่เสร็จ กรุณารอสักครู่แล้วลองอีกครั้ง');
+
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({data: buf}).promise;
+  let out = '';
+  for(let p=1;p<=pdf.numPages;p++){
+    const page = await pdf.getPage(p);
+    const tc   = await page.getTextContent();
+    out += `\n[หน้า ${p}]\n` + tc.items.map(i=>i.str).join(' ');
+  }
+  return { text: out, numPages: pdf.numPages };
+}
+
+// ─── Build analysis prompt ────────────────────────────────────────────────────
+function buildPrompt(text, ext, htmlSnippet){
+  const structureHint = htmlSnippet
+    ? `\n### โครงสร้าง HTML (จาก mammoth.js):\n${htmlSnippet.substring(0,3000)}\n`
+    : '';
+
+  return `คุณเป็นผู้เชี่ยวชาญด้านการตรวจมาตรฐานเอกสารโครงการวิชาการและวิชาชีพของไทย
+
+วิเคราะห์เอกสารด้านล่างตามมาตรฐานที่กำหนด แล้วตอบกลับเป็น JSON เท่านั้น (ไม่มีข้อความอื่น)
+
+## มาตรฐานเอกสารที่ต้องตรวจ
+
+### ส่วนต้นเอกสาร (Front Matter) — ต้องมีครบทุกรายการ:
+1. ปกนอก (Cover Page)
+2. ปกใน (Title Page)
+3. ใบอนุมัติโครงการ (Project Approval)
+4. บทคัดย่อ (Abstract)
+5. กิตติกรรมประกาศ (Acknowledgements)
+6. สารบัญ / สารบัญเนื้อหา (Table of Contents)
+7. สารบัญตาราง (List of Tables)
+8. สารบัญภาพ (List of Figures)
+
+### เนื้อหา 5 บท — ต้องมีครบทุกบท:
+- บทที่ 1: บทนำ (ความเป็นมา, วัตถุประสงค์, ขอบเขต, ประโยชน์)
+- บทที่ 2: เอกสารและงานวิจัยที่เกี่ยวข้อง
+- บทที่ 3: วิธีการดำเนินงาน (Methodology)
+- บทที่ 4: ผลการดำเนินงาน (Results)
+- บทที่ 5: สรุปผลและข้อเสนอแนะ
+
+### ส่วนท้ายเอกสาร (Back Matter):
+- บรรณานุกรม (References — APA format preferred)
+- ภาคผนวก (Appendix) — เสริม
+- ประวัติผู้จัดทำ (Author Bio)
+
+### รูปแบบที่ตรวจสอบได้จากข้อความ:
+- ฟอนต์: ควรเป็น TH Sarabun PSK หรือ TH Sarabun New
+- ขนาดตัวอักษร: 16pt เนื้อหา, 18pt หัวข้อรอง, 20–22pt หัวข้อบท (ตรวจจากเมตาดาตา ถ้ามี)
+- หัวข้อบทต้องจัดกึ่งกลาง ตัวหนา
+- บรรณานุกรมใช้รูปแบบ APA
+
+## เนื้อหาเอกสาร (ไฟล์ประเภท: ${ext.toUpperCase()})
+${structureHint}
+### ข้อความทั้งหมด:
+${text.substring(0, 14000)}
+
+## คำสั่งการตอบกลับ:
+ตอบกลับเป็น JSON เท่านั้น ไม่มีข้อความนำหรือ markdown fence ใดๆ
+
+{
+  "score": <จำนวนเต็ม 0-100>,
+  "overall_status": "PASS" | "PARTIAL" | "FAIL",
+  "summary": "<สรุปผลการตรวจสอบ 2-3 ประโยค>",
+  "front_matter": {
+    "status": "PASS" | "PARTIAL" | "FAIL",
+    "items": [
+      {"name":"<ชื่อ>","status":"FOUND"|"MISSING"|"PARTIAL","note":"<หมายเหตุ>"}
+    ]
+  },
+  "chapters": {
+    "status": "PASS" | "PARTIAL" | "FAIL",
+    "items": [
+      {"name":"<ชื่อบท>","chapter_number":<1-5>,"status":"FOUND"|"MISSING"|"PARTIAL","note":"<หมายเหตุ>"}
+    ]
+  },
+  "back_matter": {
+    "status": "PASS" | "PARTIAL" | "FAIL",
+    "items": [
+      {"name":"<ชื่อ>","status":"FOUND"|"MISSING"|"PARTIAL","note":"<หมายเหตุ>"}
+    ]
+  },
+  "content_quality": {
+    "status": "PASS" | "PARTIAL" | "FAIL",
+    "items": [
+      {"name":"<หัวข้อ>","status":"PASS"|"FAIL"|"PARTIAL"|"INFO","note":"<รายละเอียด>"}
+    ]
+  },
+  "manual_checks_required": ["<รายการที่ต้องตรวจสอบด้วยตนเอง>"],
+  "recommendations": ["<คำแนะนำการแก้ไข>"]
+}`;
+}
+
+// ─── Claude API call ──────────────────────────────────────────────────────────
+async function callClaude(prompt){
+  const resp = await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-6',
+      max_tokens:2000,
+      messages:[{role:'user',content:prompt}]
+    })
+  });
+  if(!resp.ok){
+    const e = await resp.json().catch(()=>({}));
+    throw new Error(e?.error?.message || `HTTP ${resp.status}`);
+  }
+  const data = await resp.json();
+  const raw  = data.content.map(b=>b.text||'').join('');
+  const clean = raw.replace(/```json\s*|\s*```/g,'').trim();
+  try{ return JSON.parse(clean); }
+  catch(e){ throw new Error('ไม่สามารถแปลงผลลัพธ์ JSON ได้: ' + e.message); }
+}
+
+// ─── Main check flow ──────────────────────────────────────────────────────────
+async function runCheck(){
+  if(!_file) return;
+  clearErr();
+
+  // Reset load steps
+  for(let i=0;i<4;i++) document.getElementById('s'+i).className='';
+
+  // Switch views
+  document.getElementById('section-upload').style.display  = 'none';
+  document.getElementById('section-results').classList.remove('on');
+  document.getElementById('section-loading').classList.add('on');
+
+  try{
+    // Step 0: Extract
+    stepActive(0);
+    const ext = _file.name.split('.').pop().toLowerCase();
+    let text = '', html = '';
+
+    if(ext === 'docx'){
+      const r = await extractDocx(_file);
+      text = r.text; html = r.html;
+    } else {
+      const r = await extractPdf(_file);
+      text = r.text;
+    }
+    stepDone(0);
+
+    // Step 1: Structure
+    stepActive(1);
+    await sleep(200);
+    stepDone(1);
+
+    // Step 2: AI
+    stepActive(2);
+    const prompt = buildPrompt(text, ext, html);
+    const result = await callClaude(prompt);
+    _lastResult = result;
+    stepDone(2);
+
+    // Step 3: Render
+    stepActive(3);
+    await sleep(150);
+    stepDone(3);
+
+    document.getElementById('section-loading').classList.remove('on');
+    renderResults(result);
+
+  } catch(err){
+    document.getElementById('section-loading').classList.remove('on');
+    document.getElementById('section-upload').style.display = 'block';
+    showErr(err.message);
+  }
+}
+
+// ─── Render results ───────────────────────────────────────────────────────────
+function renderResults(d){
+  const sec = document.getElementById('section-results');
+  sec.classList.add('on');
+
+  // Score ring
+  const score = Math.max(0, Math.min(100, d.score || 0));
+  const circ  = 2 * Math.PI * 47;  // r=47
+  const fill  = document.getElementById('ring-fill');
+  fill.style.strokeDasharray = `${(score/100)*circ} ${circ}`;
+  fill.style.stroke = score >= 70 ? 'var(--green)' : score >= 40 ? 'var(--amber)' : 'var(--red)';
+  document.getElementById('score-num').textContent = score;
+  document.getElementById('score-num').style.color =
+    score >= 70 ? 'var(--green)' : score >= 40 ? 'var(--amber)' : 'var(--red)';
+
+  // Badge
+  const st = d.overall_status || 'FAIL';
+  const badge = document.getElementById('st-badge');
+  badge.className = 'st-badge ' + (st==='PASS' ? 'st-pass' : st==='PARTIAL' ? 'st-partial' : 'st-fail');
+  badge.textContent = st==='PASS' ? '✓ ผ่านมาตรฐาน' : st==='PARTIAL' ? '⚠ ผ่านบางส่วน' : '✗ ไม่ผ่านมาตรฐาน';
+
+  document.getElementById('result-title').textContent =
+    st==='PASS' ? 'เอกสารผ่านการตรวจสอบ' :
+    st==='PARTIAL' ? 'เอกสารต้องการการปรับปรุง' : 'เอกสารไม่ผ่านมาตรฐาน';
+  document.getElementById('result-summary').textContent = d.summary || '—';
+
+  // Limitations
+  const ml = d.manual_checks_required;
+  if(ml && ml.length){
+    document.getElementById('manual-checks-list').innerHTML =
+      ml.map(x=>`<li>${x}</li>`).join('');
+  }
+
+  // Category cards
+  const grid = document.getElementById('cat-grid');
+  grid.innerHTML = '';
+  const cats = [
+    {key:'front_matter',   icon:'📄', label:'ส่วนต้นเอกสาร (Front Matter)'},
+    {key:'chapters',       icon:'📚', label:'เนื้อหา 5 บท'},
+    {key:'back_matter',    icon:'📎', label:'ส่วนท้ายเอกสาร (Back Matter)'},
+    {key:'content_quality',icon:'🔍', label:'คุณภาพและรูปแบบเนื้อหา'},
+  ];
+
+  cats.forEach(c => {
+    const catData = d[c.key];
+    if(!catData) return;
+
+    const st2 = catData.status || 'FAIL';
+    const dotCls = st2==='PASS' ? 'cdot-pass' : st2==='FAIL' ? 'cdot-fail' : 'cdot-warn';
+    const stLbl  = st2==='PASS' ? 'ผ่าน' : st2==='FAIL' ? 'ไม่ผ่าน' : 'บางส่วน';
+    const uid = 'cat-'+c.key;
+
+    const items = (catData.items||[]).map(item => {
+      const s = item.status||'';
+      const [iCls, iChar] =
+        (s==='FOUND'||s==='PASS')    ? ['ci-pass','✓'] :
+        (s==='MISSING'||s==='FAIL')  ? ['ci-fail','✗'] :
+        (s==='INFO')                 ? ['ci-info','ℹ'] :
+                                       ['ci-warn','~'];
+      return `<div class="ci">
+        <div class="ci-icon ${iCls}">${iChar}</div>
+        <div>
+          <div class="ci-name">${item.name}</div>
+          ${item.note ? `<div class="ci-note">${item.note}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('') || '<p style="color:var(--muted);font-size:.82rem;padding:.4rem 0">ไม่มีข้อมูล</p>';
+
+    const card = document.createElement('div');
+    card.className = 'cat-card';
+    card.innerHTML = `
+      <div class="cat-head" onclick="toggleCat('${uid}')">
+        <div class="cat-label">${c.icon} ${c.label}</div>
+        <div class="cat-stat">
+          <span class="cdot ${dotCls}"></span>
+          <span>${stLbl}</span>
+          <span class="chev" id="chev-${uid}">▼</span>
+        </div>
+      </div>
+      <div class="cat-items" id="${uid}">${items}</div>`;
+    grid.appendChild(card);
+  });
+
+  // Recommendations
+  const recs = d.recommendations || [];
+  document.getElementById('recs-body').innerHTML = recs.length
+    ? recs.map((r,i)=>`<div class="rec"><div class="rec-n">${i+1}</div><div class="rec-txt">${r}</div></div>`).join('')
+    : '<p style="color:var(--muted);font-size:.85rem">ไม่มีคำแนะนำเพิ่มเติม — เอกสารถูกต้องครบถ้วน</p>';
+
+  // JSON
+  document.getElementById('json-pre').textContent = JSON.stringify(d, null, 2);
+
+  sec.scrollIntoView({behavior:'smooth'});
+}
+
+// ─── UI helpers ───────────────────────────────────────────────────────────────
+function toggleCat(id){
+  const el   = document.getElementById(id);
+  const chev = document.getElementById('chev-'+id);
+  const open = el.style.display !== 'none';
+  el.style.display = open ? 'none' : 'block';
+  chev.classList.toggle('open', !open);
+}
+
+function toggleJson(toggle){
+  const pre  = document.getElementById('json-pre');
+  const chev = document.getElementById('json-chev');
+  pre.classList.toggle('on');
+  chev.classList.toggle('open', pre.classList.contains('on'));
+}
+
+function exportJson(){
+  if(!_lastResult) return;
+  const blob = new Blob([JSON.stringify(_lastResult,null,2)],{type:'application/json'});
+  const a    = Object.assign(document.createElement('a'),{
+    href: URL.createObjectURL(blob),
+    download: 'doc_check_result.json'
+  });
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+function resetApp(){
+  _file = null; _lastResult = null;
+  fileInp.value = '';
+  document.getElementById('file-strip').classList.remove('on');
+  dz.classList.remove('has-file');
+  document.getElementById('section-results').classList.remove('on');
+  document.getElementById('section-upload').style.display = 'block';
+  document.getElementById('btn-check').disabled = true;
+  document.getElementById('btn-label').textContent = 'เลือกไฟล์ก่อนเพื่อเริ่มตรวจสอบ';
+  clearErr();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 </script>
 </body>
 </html>
